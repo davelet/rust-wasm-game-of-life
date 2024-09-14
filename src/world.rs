@@ -1,15 +1,6 @@
 
-use std::fmt;
-
 use wasm_bindgen::prelude::*;
-
-#[wasm_bindgen]
-#[repr(u8)]
-#[derive(Clone, Copy, Debug, PartialEq, Eq)]
-pub enum Cell {
-    Dead = 0,
-    Alive = 1,
-}
+use crate::entity::Cell;
 
 #[wasm_bindgen]
 pub struct Universe {
@@ -63,9 +54,9 @@ impl Universe {
         }
     }
 
-    pub fn render(&self) -> String {
-        self.to_string()
-    }
+    // pub fn render(&self) -> String {
+    //     self.to_string()
+    // }
 
     pub fn width(&self) -> u32 {
         self.width
@@ -115,16 +106,16 @@ impl Universe {
 
 }
 
-impl fmt::Display for Universe {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        for line in self.cells.as_slice().chunks(self.width as usize) {
-            for &cell in line {
-                let symbol = if cell == Cell::Dead { '◻' } else { '◼' };
-                write!(f, "{}", symbol)?;
-            }
-            write!(f, "\n")?;
-        }
+// impl fmt::Display for Universe {
+//     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+//         for line in self.cells.as_slice().chunks(self.width as usize) {
+//             for &cell in line {
+//                 let symbol = if cell == Cell::Dead { '◻' } else { '◼' };
+//                 write!(f, "{}", symbol)?;
+//             }
+//             write!(f, "\n")?;
+//         }
 
-        Ok(())
-    }
-}
+//         Ok(())
+//     }
+// }
