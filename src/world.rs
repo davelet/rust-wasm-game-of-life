@@ -1,19 +1,18 @@
-
+use fixedbitset::FixedBitSet;
 use wasm_bindgen::prelude::*;
-use crate::entity::Cell;
 
 #[wasm_bindgen]
 pub struct Universe {
-    width: u32,
-    height: u32,
-    cells: Vec<Cell>,
+    width: usize,
+    height: usize,
+    cells: FixedBitSet,
 }
 
 impl Universe {
-    fn get_index(&self, row: u32, column: u32) -> usize {
-        (row * self.width + column) as usize
+    fn get_index(&self, row: usize, column: usize) -> usize {
+        row * self.width + column
     }
-    fn live_neighbor_count(&self, row: u32, column: u32) -> u8 {
+    fn live_neighbor_count(&self, row: usize, column: usize) -> u8 {
         let mut count = 0;
         for delta_row in [self.height - 1, 0, 1].iter().cloned() {
             for delta_col in [self.width - 1, 0, 1].iter().cloned() {
@@ -37,15 +36,11 @@ impl Universe {
         let width = 64;
         let height = 64;
 
-        let cells = (0..width * height)
-            .map(|i| {
-                if i % 2 == 0 || i % 7 == 0 {
-                    Cell::Alive
-                } else {
-                    Cell::Dead
-                }
-            })
-            .collect();
+        let size = width * height;
+        let mut cells = FixedBitSet::with_capacity(size);
+        for i in 0..size {
+            cells.set(i, js_sys::Math::random() < 0.5);
+        }
 
         Universe {
             width,
@@ -58,16 +53,16 @@ impl Universe {
     //     self.to_string()
     // }
 
-    pub fn width(&self) -> u32 {
+    pub fn width(&self) -> usize {
         self.width
     }
 
-    pub fn height(&self) -> u32 {
+    pub fn height(&self) -> usize {
         self.height
     }
 
-    pub fn cells(&self) -> *const Cell {
-        self.cells.as_ptr()
+    pub fn cells(&self) -> *const usize {
+        self.cells.as_slice().as_ptr()
     }
 
     // TODO: use https://en.wikipedia.org/wiki/Hashlife 代替，性能好很多
@@ -83,21 +78,21 @@ impl Universe {
                 let next_cell = match (cell, live_neighbors) {
                     // Rule 1: Any live cell with fewer than two live neighbours
                     // dies, as if caused by underpopulation.
-                    (Cell::Alive, x) if x < 2 => Cell::Dead,
+                    (true, x) if x < 2 => false,
                     // Rule 2: Any live cell with two or three live neighbours
                     // lives on to the next generation.
-                    (Cell::Alive, 2) | (Cell::Alive, 3) => Cell::Alive,
+                    (true, 2) | (true, 3) => true,
                     // Rule 3: Any live cell with more than three live
                     // neighbours dies, as if by overpopulation.
-                    (Cell::Alive, x) if x > 3 => Cell::Dead,
+                    (true, x) if x > 3 => false,
                     // Rule 4: Any dead cell with exactly three live neighbours
                     // becomes a live cell, as if by reproduction.
-                    (Cell::Dead, 3) => Cell::Alive,
+                    (false, 3) => true,
                     // All other cells remain in the same state.
                     (otherwise, _) => otherwise,
                 };
 
-                next[idx] = next_cell;
+                next.set(idx, next_cell);
             }
         }
 

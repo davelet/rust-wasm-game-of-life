@@ -1,4 +1,4 @@
 mod utils;
 mod world;
-mod entity;
+// mod entity;
 
