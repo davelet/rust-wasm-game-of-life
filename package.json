@@ -1,0 +1,5 @@
+{
+  "dependencies": {
+    "create-wasm-app": "/Users/weix065/.nvm/versions/node/v22.8.0/lib/node_modules/create-wasm-app"
+  }
+}
